@@ -1,6 +1,8 @@
 package edu.ecom.user.service;
 
+import edu.ecom.user.dto.UserDetailsDto;
 import edu.ecom.user.entity.User;
+import edu.ecom.user.entity.UserRole;
 import edu.ecom.user.model.Role;
 import edu.ecom.user.repository.UserRepository;
 import jakarta.ws.rs.NotFoundException;
@@ -51,8 +53,16 @@ public class UserDetailsServiceImpl {
     userRepository.save(user);
   }
 
-  public Boolean verifyCredentials(String username, String password) {
+  public UserDetailsDto getVerifiedUser(String username, String password) {
     User user = loadUserByUsername(username);
-    return passwordEncoder.matches(password, user.getPassword());
+    UserDetailsDto userDetailsDto = UserDetailsDto.builder()
+        .id(user.getId())
+        .username(user.getUsername())
+        .roles(user.getRoles().stream()
+            .map(UserRole::getRole)
+            .map(Role::getAuthority)
+            .toList())
+        .build();
+    return passwordEncoder.matches(password, user.getPassword())? userDetailsDto : null;
   }
 }

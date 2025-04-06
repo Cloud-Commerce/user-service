@@ -1,5 +1,6 @@
 package edu.ecom.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.ecom.user.model.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,12 +25,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Required by JPA
-public class User {
+public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +45,7 @@ public class User {
   @Setter
   @NotNull
   @Column(nullable = false)
+  @JsonIgnore
   private String password;
 
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -53,6 +58,7 @@ public class User {
   private Date updatedAt = new Date();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private Set<UserRole> roles = new HashSet<>();
 
   @Builder
@@ -87,4 +93,32 @@ public class User {
     roles.removeIf(userRole -> userRole.getRole() == role);
   }
 
+  @Override
+  public Collection<SimpleGrantedAuthority> getAuthorities() {
+    return roles.stream()
+        .map(UserRole::getRole)
+        .map(Role::getAuthority)
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
 }
