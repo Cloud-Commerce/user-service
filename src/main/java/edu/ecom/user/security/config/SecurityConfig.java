@@ -1,18 +1,15 @@
 package edu.ecom.user.security.config;
 
 import edu.ecom.user.filter.HmacSignatureFilter;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -23,17 +20,10 @@ public class SecurityConfig {
   public SecurityFilterChain internalApiFilterChain(HttpSecurity http, HmacSignatureFilter signatureFilter) throws Exception {
     http
         // 1. FIRST: Identify if this chain should process the request
-        .securityMatcher("/internal/**")
+        .securityMatcher("/api/internal/**")
         // 2. THEN: Apply rules to matched requests
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/internal/**") // All need auth
-            .access((authentication, context) -> {
-              HttpServletRequest request = context.getRequest();
-              if (new IpAddressMatcher("auth-service").matches(request)) {
-                return new AuthorizationDecision(true);
-              }
-              return new AuthorizationDecision(false);
-            })
+            .requestMatchers("/api/internal/**").permitAll() // All need auth
         )
         .csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(signatureFilter, AuthorizationFilter.class);

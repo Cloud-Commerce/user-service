@@ -22,7 +22,7 @@ public class UserController {
     this.userDetailsService = userDetailsService;
   }
 
-  @GetMapping
+  @GetMapping("/")
   public ResponseEntity<?> getUsers(@RequestParam(required = false) String username) {
     List<User> users = Optional.ofNullable(username).map(userDetailsService::loadUserByUsername)
         .map(List::of).orElseGet(userDetailsService::loadAllUsers);

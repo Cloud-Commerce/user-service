@@ -27,6 +27,15 @@ public class HmacSignatureFilter extends OncePerRequestFilter {
     String timestamp = request.getHeader("X-Auth-Timestamp");
     String serviceId = request.getHeader("X-Service-ID");
 
+    if("gateway-service".equals(serviceId)) {
+      // Skip HMAC verification for the gateway service
+      chain.doFilter(request, response);
+      return;
+    }
+    if (signature == null || timestamp == null || serviceId == null) {
+      response.sendError(401, "Missing required headers");
+      return;
+    }
     // 1. Validate timestamp freshness (±30 seconds)
     if (Math.abs(Instant.now().getEpochSecond() - Long.parseLong(timestamp)) > 30) {
       throw new SecurityException("Expired request");
