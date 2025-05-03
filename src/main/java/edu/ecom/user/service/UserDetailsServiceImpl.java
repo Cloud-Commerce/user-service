@@ -63,6 +63,9 @@ public class UserDetailsServiceImpl {
             .map(Role::getAuthority)
             .toList())
         .build();
-    return passwordEncoder.matches(password, user.getPassword())? userDetailsDto : null;
+    if(passwordEncoder.matches(password, user.getPassword()))
+      return userDetailsDto;
+    else
+      throw new InputMismatchException("Wrong Credentials!");
   }
 }
