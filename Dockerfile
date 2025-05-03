@@ -21,6 +21,6 @@ WORKDIR /app
 COPY db db
 COPY --from=builder /app/target/*.jar ./service.jar
 
-EXPOSE 8503
+EXPOSE 8502
 
 ENTRYPOINT ["java", "-jar", "service.jar"]
