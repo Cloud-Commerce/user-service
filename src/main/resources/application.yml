@@ -27,4 +27,5 @@ eureka:
     lease-renewal-interval-in-seconds: 5 # Heartbeat interval - DO NOT DO THIS IN PRODUCTION
 
 app:
-  secret-key: ${APP_SECRET_KEY:0CtrGzxWwSOJ6bwyvxyf8eSHjbs0z6gfCUyb7U243zc=}
+  s2s-comm:
+    secret: ${APP_SECRET_KEY:0CtrGzxWwSOJ6bwyvxyf8eSHjbs0z6gfCUyb7U243zc=}

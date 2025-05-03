@@ -13,7 +13,7 @@ public class HmacSigningService {
 
   private final Mac hmac;
 
-  public HmacSigningService(@Value("${app.secret-key}") String secret) throws Exception {
+  public HmacSigningService(@Value("${app.s2s-comm.secret}") String secret) throws Exception {
     this.hmac = Mac.getInstance("HmacSHA256");
     this.hmac.init(new SecretKeySpec(secret.getBytes(), "HmacSHA256"));
   }
